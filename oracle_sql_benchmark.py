@@ -58,6 +58,23 @@ def run_benchmark_with_list_of_sql_statements(
             print()
 
             with connection.cursor() as cursor:
+                # Run the query once before the test to warm up caches
+                start_time_initial_query = time.perf_counter()
+                for query in queries:
+                    cursor.execute(query)
+
+                    if batch_size > 0:
+                        while True:
+                            rows = cursor.fetchmany(batch_size)
+                            if not rows:
+                                break
+                    else:
+                        cursor.fetchall()
+                end_time_initial_query = time.perf_counter()
+                results.append(
+                    (end_time_initial_query - start_time_initial_query) * 1000
+                )
+
                 for i in range(1, count + 1):
                     print(f"Running iteration {i} of {count}...")
 
@@ -262,11 +279,8 @@ def main():
             batch_size=args.batch_size,
         )
     if results:
-        if args.file:
-            print_results(results)
-        else:
-            print(f"\nExecution time of warm up: {format_time(results[0])} ms")
-            print_results(results[1:])
+        print(f"\nExecution time of warm up: {format_time(results[0])} ms")
+        print_results(results[1:])
 
 
 if __name__ == "__main__":
