@@ -71,9 +71,34 @@ def run_benchmark_with_list_of_sql_statements(
                     else:
                         cursor.fetchall()
                 end_time_initial_query = time.perf_counter()
-                results.append(
-                    (end_time_initial_query - start_time_initial_query) * 1000
+                execution_time_initial_query = (
+                    end_time_initial_query - start_time_initial_query
                 )
+                results.append(execution_time_initial_query * 1000)
+                print(
+                    f"Warm up execution 1: {format_time(execution_time_initial_query)} ms"
+                )
+                # Two more executions so that cursur cache comes in
+                cursor.execute(query)
+
+                if batch_size > 0:
+                    while True:
+                        rows = cursor.fetchmany(batch_size)
+                        if not rows:
+                            break
+                else:
+                    cursor.fetchall()
+                print(f"Warm up execution 2 done...")
+                cursor.execute(query)
+
+                if batch_size > 0:
+                    while True:
+                        rows = cursor.fetchmany(batch_size)
+                        if not rows:
+                            break
+                else:
+                    cursor.fetchall()
+                print(f"Warm up execution 3 done...")
 
                 for i in range(1, count + 1):
                     print(f"Running iteration {i} of {count}...")
@@ -138,11 +163,44 @@ def run_benchmark_with_same_sql_multiple_times(
                 # Run the query once before the test to warm up caches
                 start_time_initial_query = time.perf_counter()
                 cursor.execute(query)
-                cursor.fetchall()
+
+                if batch_size > 0:
+                    while True:
+                        rows = cursor.fetchmany(batch_size)
+                        if not rows:
+                            break
+                else:
+                    cursor.fetchall()
                 end_time_initial_query = time.perf_counter()
-                results.append(
-                    (end_time_initial_query - start_time_initial_query) * 1000
+                execution_time_initial_query = (
+                    end_time_initial_query - start_time_initial_query
                 )
+                results.append(execution_time_initial_query * 1000)
+                print(
+                    f"Warm up execution 1: {format_time(execution_time_initial_query)} ms"
+                )
+                # Two more executions so that session cursur cache comes in
+                cursor.execute(query)
+
+                if batch_size > 0:
+                    while True:
+                        rows = cursor.fetchmany(batch_size)
+                        if not rows:
+                            break
+                else:
+                    cursor.fetchall()
+                print(f"Warm up execution 2 done...")
+                cursor.execute(query)
+
+                if batch_size > 0:
+                    while True:
+                        rows = cursor.fetchmany(batch_size)
+                        if not rows:
+                            break
+                else:
+                    cursor.fetchall()
+                print(f"Warm up execution 3 done...")
+                print("Beginning measurement...")
 
                 for i in range(1, count + 1):
                     print(f"Running iteration {i} of {count}...")
