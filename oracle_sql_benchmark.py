@@ -53,7 +53,7 @@ def run_benchmark_with_list_of_sql_statements(
 
             print("Connection established successfully.")
             print(
-                f"Will execute the queries {count} times with {wait} second(s) between runs."
+                f"Will execute the queries {count} times with {wait} second(s) between runs and fetch size of {batch_size} (0 = all)."
             )
             print()
 
@@ -73,8 +73,8 @@ def run_benchmark_with_list_of_sql_statements(
                 end_time_initial_query = time.perf_counter()
                 execution_time_initial_query = (
                     end_time_initial_query - start_time_initial_query
-                )
-                results.append(execution_time_initial_query * 1000)
+                ) * 1000
+                results.append(execution_time_initial_query)
                 print(
                     f"Warm up execution 1: {format_time(execution_time_initial_query)} ms"
                 )
@@ -101,8 +101,6 @@ def run_benchmark_with_list_of_sql_statements(
                 print(f"Warm up execution 3 done...")
 
                 for i in range(1, count + 1):
-                    print(f"Running iteration {i} of {count}...")
-
                     start_time = time.perf_counter()
 
                     for query in queries:
@@ -119,7 +117,7 @@ def run_benchmark_with_list_of_sql_statements(
                     end_time = time.perf_counter()
 
                     execution_time = (end_time - start_time) * 1000
-
+                    print(f"Ran iteration {i} of {count} in {execution_time} ms ...")
                     results.append(execution_time)
 
                     if i < count:
@@ -155,7 +153,7 @@ def run_benchmark_with_same_sql_multiple_times(
 
             print("Connection established successfully.")
             print(
-                f"Will execute the query {count} times with {wait} second(s) between runs."
+                f"Will execute the queries {count} times with {wait} second(s) between runs and fetch size of {batch_size} (0 = all)."
             )
             print()
 
@@ -174,8 +172,8 @@ def run_benchmark_with_same_sql_multiple_times(
                 end_time_initial_query = time.perf_counter()
                 execution_time_initial_query = (
                     end_time_initial_query - start_time_initial_query
-                )
-                results.append(execution_time_initial_query * 1000)
+                ) * 1000
+                results.append(execution_time_initial_query)
                 print(
                     f"Warm up execution 1: {format_time(execution_time_initial_query)} ms"
                 )
@@ -203,8 +201,6 @@ def run_benchmark_with_same_sql_multiple_times(
                 print("Beginning measurement...")
 
                 for i in range(1, count + 1):
-                    print(f"Running iteration {i} of {count}...")
-
                     start_time = time.perf_counter()
 
                     cursor.execute(query)
@@ -220,7 +216,7 @@ def run_benchmark_with_same_sql_multiple_times(
                     end_time = time.perf_counter()
 
                     execution_time = (end_time - start_time) * 1000
-
+                    print(f"Ran iteration {i} of {count} in {execution_time} ms ...")
                     results.append(execution_time)
 
                     if i < count:
