@@ -1,4 +1,4 @@
-def parse_sql_file(file_path: str):
+def parse_sql_file(file_path: str) -> list[str]:
     try:
         return _read_and_parse_file(file_path)
     except FileNotFoundError:
@@ -7,7 +7,7 @@ def parse_sql_file(file_path: str):
         raise IOError(f"Error reading the file: {str(error_instance)}")
 
 
-def _read_and_parse_file(file_path: str):
+def _read_and_parse_file(file_path: str) -> list[str]:
     with open(file_path, "r") as input_file:
         statements_wo_semicolons = input_file.read().split(";")
     sql_statements = []
