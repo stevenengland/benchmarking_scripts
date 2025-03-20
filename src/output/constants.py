@@ -1,0 +1,2 @@
+TIME_UNIT_STR = "ms"
+DIVIDE_OP_STR = "/"
