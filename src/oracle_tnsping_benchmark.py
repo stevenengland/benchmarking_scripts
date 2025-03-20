@@ -3,13 +3,13 @@ import re
 import socket
 import time
 
-from constants.socket_constants import (
-    DEFAULT_ORACLEDB_PORT,
-    DEFAULT_RECEIVE_BUFFER_SIZE,
-)
 from measurements.measurement_printing import print_measurement_results
 from measurements.measurements_stats import MeasurementsStats
 from output.time_format import format_seconds
+from src.connection.constants import (
+    DEFAULT_ORACLEDB_PORT,
+    DEFAULT_RECEIVE_BUFFER_SIZE,
+)
 
 packet = (
     b"\x00W\x00\x00\x01\x00\x00\x00\x018\x01,\x00\x00\x08\x00\x7f\xff"
@@ -96,7 +96,7 @@ def measure_tns_pings(
     return MeasurementsStats([])
 
 
-def main() -> None:
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Measure network latency to a host")
     parser.add_argument("host", type=str, help="Target hostname or IP address")
     parser.add_argument(
@@ -135,7 +135,11 @@ def main() -> None:
         help="Include the connection setup before sending the ping into the measurement? (default: False)",
     )
 
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_arguments()
 
     print(f"Measuring TNS Ping towards {args.host}:{args.port}")
     print(f"  Count: {args.count}")
