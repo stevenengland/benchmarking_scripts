@@ -1,0 +1,8 @@
+-r ./base.txt
+
+black
+flake8
+isort
+mypy
+pydantic
+wemake-python-styleguide
