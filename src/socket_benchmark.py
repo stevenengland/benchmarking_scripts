@@ -2,11 +2,11 @@ import argparse
 import socket
 import time
 
-from constants.socket_constants import DEFAULT_HTTP_PORT
 from measurements.measurement_printing import print_measurement_results
 from measurements.measurements_stats import MeasurementsStats
 from output.constants import DIVIDE_OP_STR
 from output.time_format import format_seconds
+from src.connection.constants import DEFAULT_HTTP_PORT
 
 
 def measure_latency(  # noqa: WPS210, WPS213
@@ -59,7 +59,7 @@ def measure_latency(  # noqa: WPS210, WPS213
     )
 
 
-def main() -> None:
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Measure network latency to a host")
     parser.add_argument("host", type=str, help="Target hostname or IP address")
     parser.add_argument(
@@ -90,8 +90,11 @@ def main() -> None:
         default=0.5,
         help="Wait time between each attempt (default: 0.5)",
     )
+    return parser.parse_args()
 
-    args = parser.parse_args()
+
+def main() -> None:
+    args = parse_arguments()
 
     print(
         f"Measuring socket connection to {args.host}:{args.port}",
