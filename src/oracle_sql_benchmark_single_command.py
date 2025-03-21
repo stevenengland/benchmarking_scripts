@@ -40,7 +40,6 @@ def execute_sql_stmt(
     batch_size,
     hard_parse,
 ):
-    # Build connection string in parts to reduce complexity
     host_port = f"{db_host}:{db_port}"
     credentials = f"{db_user}/{db_pass}"
     timeout_param = f"?transport_connect_timeout={timeout}"
