@@ -43,7 +43,7 @@ def execute_sql_stmts(  # noqa: WPS211
                     )
         except oracledb.DatabaseError as error:
             print(f"Error: {error}")
-            return MeasurementsStats([])
+            exit(1)
     else:
         return execute_sql_stmts_wo_reused_cursor(
             connection_string=connection_string,
@@ -144,7 +144,7 @@ def execute_sql_stmts_wo_reused_cursor(
                     time.sleep(wait)
         except oracledb.DatabaseError as error:
             print(f"Error: {error}")
-            return MeasurementsStats([])
+            exit(1)
 
     measurements = []
     failed_attempts = 0
