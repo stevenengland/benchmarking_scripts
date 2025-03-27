@@ -6,7 +6,7 @@ import time
 from measurements.measurement_printing import print_measurement_results
 from measurements.measurements_stats import MeasurementsStats
 from output.time_format import format_seconds
-from src.connection.constants import (
+from connection.constants import (
     DEFAULT_ORACLEDB_PORT,
     DEFAULT_RECEIVE_BUFFER_SIZE,
 )
