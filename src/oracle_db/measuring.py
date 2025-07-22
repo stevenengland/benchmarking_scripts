@@ -1,4 +1,5 @@
 import time
+from typing import List, Optional
 
 import oracledb
 
@@ -14,6 +15,8 @@ def measure_query_execution_time(
     batch_size: int,
     hard_parse: bool,
 ) -> tuple[int, float]:
+    affected_rows = 0
+    execution_time = 0
     for query in queries:
         if hard_parse:
             query = convert_to_hard_parse_statemtent(query)
@@ -38,7 +41,7 @@ def measure_fetchmany(
     batch_size: int,
 ) -> tuple[int, float]:
     start_time = time.perf_counter()
-    cursor.execute(query)
+    cursor.execute(query)  # type: ignore
     affected_rows = 0
     while True:
         rows = cursor.fetchmany(batch_size)
@@ -47,3 +50,18 @@ def measure_fetchmany(
         affected_rows = affected_rows + len(rows)
     end_time = time.perf_counter()
     return affected_rows, (end_time - start_time) * 1000
+
+
+def measure_procedure_execution_time(
+    cursor: oracledb.Cursor,
+    procedure_name: str,
+    args: Optional[List[str]] = None,
+) -> float:
+
+    start_time = time.perf_counter()
+    if args is None:
+        cursor.callproc(procedure_name)
+    else:
+        cursor.callproc(procedure_name, args)
+    end_time = time.perf_counter()
+    return (end_time - start_time) * 1000

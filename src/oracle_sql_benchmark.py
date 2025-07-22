@@ -56,7 +56,7 @@ def execute_sql_stmts(  # noqa: WPS211
         )
 
 
-def execute_sql_stmts_w_reused_cursor(
+def execute_sql_stmts_w_reused_cursor(  # noqa: WPS211, WPS210, WPS231
     cursor: oracledb.Cursor,
     queries: list[str],
     count: int,
@@ -80,7 +80,7 @@ def execute_sql_stmts_w_reused_cursor(
 
         time.sleep(wait)
 
-    measurements = []
+    measurements: list[float] = []
     failed_attempts = 0
 
     for execution_count in range(1, count + 1):
@@ -110,7 +110,7 @@ def execute_sql_stmts_w_reused_cursor(
 
 
 # ToDo: Way to complex function, should be refactored
-def execute_sql_stmts_wo_reused_cursor(
+def execute_sql_stmts_wo_reused_cursor(  # noqa: WPS211, WPS210, C901
     connection_string: str,
     queries: list[str],
     count: int,
@@ -146,7 +146,7 @@ def execute_sql_stmts_wo_reused_cursor(
             print(f"Error: {error}")
             exit(1)
 
-    measurements = []
+    measurements: list[float] = []
     failed_attempts = 0
 
     for execution_count in range(1, count + 1):
@@ -258,27 +258,46 @@ def parse_arguments() -> argparse.Namespace:  # noqa: WPS213
         help="How many times the query(ies) will be executed upfront the real test to warmup caches (default: 0)?",
     )
 
+    parser.add_argument(
+        "-etc",
+        "--enable-thick-client",
+        action="store_true",
+        default=False,
+        help="Enable thick client for the database connection (default: False)",
+    )
+
+    parser.add_argument(
+        "-tcd",
+        "--thick-client-dir",
+        type=str,
+        help=("Path to the directory containing the thick client libraries"),
+    )
+
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_arguments()
 
-    queries: list[str] = parse_sql_file(args.file) if args.file else [args.query]
+    if args.enable_thick_client:
+        if args.thick_client_dir:
+            oracledb.init_oracle_client(lib_dir=args.thick_client_dir)
+        else:
+            oracledb.init_oracle_client()
 
+    queries: list[str] = parse_sql_file(args.file) if args.file else [args.query]
     db_pass = getpass.getpass("Enter password: ")
 
     print(
-        f"Measuring SQL statement execution for {args.db_host}:{args.db_port}/{args.db_service}",
+        f"Measuring SQL statement execution for {args.db_host}:{args.db_port}/{args.db_service}\n"  # noqa: WPS221
+        + f"  Timeout: {args.timeout}s\n"
+        + f"  Count: {args.count}\n"
+        + f"  Wait: {args.wait}s\n"
+        + f"  Batch size: {args.batch_size}\n"
+        + f"  Hard parse: {args.hard_parse}\n"
+        + f"  Reuse connection: {args.reuse_connection}\n"
+        + f"  Warmup cache: {args.warmup_cache}\n",
     )
-    print(f"  Timeout: {args.timeout}s")
-    print(f"  Count: {args.count}")
-    print(f"  Wait: {args.wait}s")
-    print(f"  Batch size: {args.batch_size}")
-    print(f"  Hard parse: {args.hard_parse}")
-    print(f"  Reuse connection: {args.reuse_connection}")
-    print(f"  Warmup cache: {args.warmup_cache}")
-    print()
 
     measurements = execute_sql_stmts(
         connection_string=get_connection_string(
@@ -297,7 +316,6 @@ def main() -> None:
         reuse_connection=args.reuse_connection,
         warmup_cache=args.warmup_cache,
     )
-
     print_measurement_results(measurements)
 
 
