@@ -6,7 +6,7 @@ from measurements.measurement_printing import print_measurement_results
 from measurements.measurements_stats import MeasurementsStats
 from output.constants import DIVIDE_OP_STR
 from output.time_format import format_seconds
-from src.connection.constants import DEFAULT_HTTP_PORT
+from connection.constants import DEFAULT_HTTP_PORT
 
 
 def measure_latency(  # noqa: WPS210, WPS213
