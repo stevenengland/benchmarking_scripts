@@ -57,11 +57,11 @@ def measure_procedure_execution_time(
     procedure_name: str,
     args: Optional[List[str]] = None,
 ) -> float:
-
+    # For now assume that the procedure returns a cursor and only one cursor
+    ref_cursor = cursor.var(oracledb.DB_TYPE_CURSOR)
     start_time = time.perf_counter()
-    if args is None:
-        cursor.callproc(procedure_name)
-    else:
-        cursor.callproc(procedure_name, args)
-    end_time = time.perf_counter()
+    cursor.callproc(procedure_name, [ref_cursor] + args)
+    with ref_cursor.getvalue() as out_cursor:
+        out_cursor.fetchall()
+        end_time = time.perf_counter()
     return (end_time - start_time) * 1000

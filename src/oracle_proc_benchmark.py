@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import ast
 import getpass
 import re
 import time
@@ -262,14 +263,26 @@ def main() -> None:  # noqa: WPS210, WPS213
 
     # Extract procedure name and arguments from args.procedure
 
-    match = re.match(r"(\w+)\s*(?:\((.*)\))?", args.procedure.replace(" ", ""))
+    match = re.match(r"(.*)\((.*)\)", args.procedure.replace(" ", ""))
     if not match:
         print("Error: Procedure format should be my_proc or my_proc(arg1, arg2)")
         exit(1)
     procedure_name = match.group(1)
     args_string = match.group(2) or ""
-    args_list = args_string.split(",")
-    procedure_args = [arg for arg in args_list if arg]
+    if args_string:
+        try:
+            # Wrap in parentheses to make it a valid tuple expression
+            parsed_args = ast.literal_eval(f"({args_string})")
+        except (ValueError, SyntaxError):
+            print(f"Error: Invalid argument format in '{args_string}'")
+            exit(1)
+        # Handle single argument case (ast.literal_eval returns the value, not a tuple)
+        if isinstance(parsed_args, (list, tuple)):
+            procedure_args = list(parsed_args)
+        else:
+            procedure_args = [parsed_args]
+    else:
+        procedure_args = []
 
     # You can now use procedure_name and procedure_args as needed
 
